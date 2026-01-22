@@ -16,7 +16,8 @@ export const roomsData = [
     amenities: ["WiFi", "AC", "Kitchen"],
     description: "Beautiful room with mountain views in Lonavala.",
     rating: 4.5,
-    reviews: 23
+    reviews: 23,
+    earnAmount: 18000
   },
   {
     id: 2,
@@ -33,7 +34,8 @@ export const roomsData = [
     amenities: ["Pool", "WiFi", "AC", "Balcony"],
     description: "Luxury beach villa with private pool and ocean views.",
     rating: 4.8,
-    reviews: 45
+    reviews: 45,
+    earnAmount: 42500
   },
   {
     id: 3,
