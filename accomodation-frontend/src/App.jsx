@@ -6,6 +6,7 @@ import Login from './components/Login/Login';
 import HelpCenter from './components/HelpCenter/HelpCenter';
 import PropertyOwnerDashboard from './components/PropertyOwner/PropertyOwnerDashboard';
 import AddProperty from './components/PropertyOwner/AddProperty';
+import Footer from './components/Footer/Footer';
 
 const App = () => {
   return (

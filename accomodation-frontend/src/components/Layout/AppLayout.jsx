@@ -1,5 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
+import Footer from '../Footer/Footer';
 
 const AppLayout = ({ children, navbar, showSearch = false }) => {
   return (
@@ -11,6 +12,9 @@ const AppLayout = ({ children, navbar, showSearch = false }) => {
       <main>
         {children}
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
