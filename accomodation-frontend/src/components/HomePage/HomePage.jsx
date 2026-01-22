@@ -7,6 +7,7 @@ import RoomCard from "../Room/RoomCard";
 import RoomDetails from "../Room/RoomDetails";
 import ConfirmBooking from "../ConfirmBooking/ConfirmBooking";
 import Login from "../Login/Login";
+import ChatBot from "../ChatBot/ChatBot";
 import { dataStore } from "../../utils/dataStore";
 
 const HomePage = () => {
@@ -20,6 +21,8 @@ const HomePage = () => {
   const [allRooms, setAllRooms] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [noResultsMessage, setNoResultsMessage] = useState("");
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showChatBot, setShowChatBot] = useState(false);
 
   useEffect(() => {
     const rooms = dataStore.getAllRooms();
@@ -54,6 +57,13 @@ const HomePage = () => {
     window.addEventListener('clearSearch', handleClearSearchEvent);
     return () => window.removeEventListener('clearSearch', handleClearSearchEvent);
   }, [allRooms]);
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleRemove = (bookingIndex) => {
     setBookings((prev) => prev.filter((_, index) => index !== bookingIndex));
@@ -124,6 +134,14 @@ const HomePage = () => {
 
   const handleLoginSuccess = () => {
     setShowLogin(false);
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleChatBotToggle = () => {
+    setShowChatBot(!showChatBot);
   };
 
   if (showLogin) {
@@ -205,6 +223,37 @@ const HomePage = () => {
         onClose={handleCloseDetails}
         onBook={handleBookRoom}
         existingBookings={bookings}
+      />
+
+      {/* Fixed Buttons */}
+      <div style={{position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000}}>
+        {/* Chatbot Button */}
+        <button 
+          className="btn btn-primary rounded-circle mb-3 shadow"
+          style={{width: '60px', height: '60px', background: 'linear-gradient(135deg, #ff385c, #e61e4d)', border: 'none'}}
+          onClick={handleChatBotToggle}
+          title="Chat with us"
+        >
+          <i className="fas fa-comments fs-5"></i>
+        </button>
+        
+        {/* Scroll to Top Button */}
+        {showScrollTop && (
+          <button 
+            className="btn btn-secondary rounded-circle shadow d-block"
+            style={{width: '50px', height: '50px'}}
+            onClick={scrollToTop}
+            title="Scroll to top"
+          >
+            <i className="fas fa-arrow-up"></i>
+          </button>
+        )}
+      </div>
+
+      {/* ChatBot Component */}
+      <ChatBot 
+        isOpen={showChatBot} 
+        onClose={() => setShowChatBot(false)} 
       />
     </>
   );

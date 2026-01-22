@@ -45,6 +45,14 @@ const Layout = () => {
 
   const handleClearSearch = () => {
     window.dispatchEvent(new CustomEvent('clearSearch'));
+  const handleLogoClick = () => {
+    if (location.pathname === '/') {
+      // If on home page, scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // If on other pages, navigate to home
+      navigate('/');
+    }
   };
 
   const handlePropertyAdded = (newProperty) => {
@@ -62,6 +70,7 @@ const Layout = () => {
           onLogoutClick={handleLogout}
           onHelpClick={handleHelpCenter}
           onPropertyOwnerClick={handlePropertyOwner}
+          onLogoClick={handleLogoClick}
           showSearch={showSearch}
         />
       }

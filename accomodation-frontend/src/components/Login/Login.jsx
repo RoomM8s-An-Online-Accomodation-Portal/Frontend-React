@@ -6,8 +6,15 @@ import { mockUsers } from "../../data/mockData";
 const Login = () => {
   const navigate = useNavigate();
   const { setAuthKey } = useOutletContext();
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [role, setRole] = useState("user");
+  const [gender, setGender] = useState("");
+  const [age, setAge] = useState("");
   const [error, setError] = useState("");
 
   // Extract inline styles to local style objects
@@ -19,14 +26,45 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const user = mockUsers.find(u => u.email === email && u.password === password);
     
-    if (user) {
-      authUtils.login(user);
-      setAuthKey(prev => prev + 1); // Trigger navbar re-render
-      navigate('/'); // Navigate to home after successful login
+    if (isSignUp) {
+      // Sign up logic
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+      
+      if (mockUsers.find(u => u.email === email)) {
+        setError('Email already exists');
+        return;
+      }
+      
+      const newUser = {
+        id: Date.now(),
+        email,
+        password,
+        name: `${firstName} ${lastName}`,
+        role,
+        gender,
+        age: parseInt(age)
+      };
+      
+      // In a real app, you'd send this to your backend
+      mockUsers.push(newUser);
+      authUtils.login(newUser);
+      setAuthKey(prev => prev + 1);
+      navigate('/');
     } else {
-      setError('Invalid email or password');
+      // Login logic
+      const user = mockUsers.find(u => u.email === email && u.password === password);
+      
+      if (user) {
+        authUtils.login(user);
+        setAuthKey(prev => prev + 1);
+        navigate('/');
+      } else {
+        setError('Invalid email or password');
+      }
     }
   };
 
@@ -37,12 +75,12 @@ const Login = () => {
   return (
     <div className="container py-4">
       <div className="row justify-content-center">
-        <div className="col-md-6 col-lg-4">
+        <div className="col-md-8 col-lg-5">
           <div className="card border-0 shadow" style={cardStyle}>
             <div className="card-body p-4">
               <div className="text-center mb-4">
-                <h3 className="fw-bold">Welcome back</h3>
-                <p className="text-muted">Sign in to your account</p>
+                <h3 className="fw-bold">{isSignUp ? 'Create Account' : 'Welcome back'}</h3>
+                <p className="text-muted">{isSignUp ? 'Sign up for a new account' : 'Sign in to your account'}</p>
               </div>
 
               <form onSubmit={handleSubmit}>
@@ -51,6 +89,34 @@ const Login = () => {
                     <small>{error}</small>
                   </div>
                 )}
+                
+                {isSignUp && (
+                  <>
+                    <div className="row mb-3">
+                      <div className="col-6">
+                        <label className="form-label">First Name</label>
+                        <input 
+                          type="text" 
+                          className="form-control" 
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          required 
+                        />
+                      </div>
+                      <div className="col-6">
+                        <label className="form-label">Last Name</label>
+                        <input 
+                          type="text" 
+                          className="form-control" 
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          required 
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+                
                 <div className="mb-3">
                   <label className="form-label">Email</label>
                   <input 
@@ -58,29 +124,99 @@ const Login = () => {
                     className="form-control" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="user@test.com, admin@test.com, or owner@test.com"
+                    placeholder={isSignUp ? "Enter your email" : "user@test.com, admin@test.com, or owner@test.com"}
                     required 
                   />
                 </div>
-                <div className="mb-4">
+                
+                <div className="mb-3">
                   <label className="form-label">Password</label>
                   <input 
                     type="password" 
                     className="form-control" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="123456, admin, or owner123"
+                    placeholder={isSignUp ? "Enter password" : "123456, admin, or owner123"}
                     required 
                   />
                 </div>
+                
+                {isSignUp && (
+                  <>
+                    <div className="mb-3">
+                      <label className="form-label">Confirm Password</label>
+                      <input 
+                        type="password" 
+                        className="form-control" 
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required 
+                      />
+                    </div>
+                    
+                    <div className="row mb-3">
+                      <div className="col-6">
+                        <label className="form-label">Role</label>
+                        <select 
+                          className="form-select" 
+                          value={role}
+                          onChange={(e) => setRole(e.target.value)}
+                        >
+                          <option value="user">User</option>
+                          <option value="property_owner">Property Owner</option>
+                        </select>
+                      </div>
+                      <div className="col-6">
+                        <label className="form-label">Gender</label>
+                        <select 
+                          className="form-select" 
+                          value={gender}
+                          onChange={(e) => setGender(e.target.value)}
+                          required
+                        >
+                          <option value="">Select Gender</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">Age</label>
+                      <input 
+                        type="number" 
+                        className="form-control" 
+                        value={age}
+                        onChange={(e) => setAge(e.target.value)}
+                        min="18"
+                        max="100"
+                        required 
+                      />
+                    </div>
+                  </>
+                )}
+                
                 <button 
                   type="submit" 
                   className="btn btn-primary w-100 py-2 mb-3" 
                   style={buttonStyle}
                 >
-                  Sign In
+                  {isSignUp ? 'Sign Up' : 'Sign In'}
                 </button>
               </form>
+              
+              <div className="text-center mb-3">
+                <button 
+                  onClick={() => {
+                    setIsSignUp(!isSignUp);
+                    setError('');
+                  }}
+                  className="btn btn-link text-decoration-none p-0"
+                >
+                  {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+                </button>
+              </div>
 
               <button 
                 onClick={handleBack} 

@@ -19,12 +19,21 @@ const Navbar = ({
   onHelpClick = () => {},
   onPropertyOwnerClick = () => {},
   showSearch = true
+const Navbar = ({ 
+  onSearch = () => {}, 
+  onLoginClick = () => {}, 
+  onLogoutClick = () => {}, 
+  onHelpClick = () => {}, 
+  onPropertyOwnerClick = () => {}, 
+  onLogoClick = () => {},
+  showSearch = true 
 }) => {
   /* ================ STATE ================ */
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [userName, setUserName] = useState('');
   const [showSearchBar, setShowSearchBar] = useState(true);
   const [userName, setUserName] = useState("");
   const dropdownRef = useRef(null);
@@ -43,6 +52,11 @@ const Navbar = ({
       } else {
         setUserName('');
       }
+    setUserName(localStorage.getItem('userName') || '');
+    
+    const handleAuthChange = () => {
+      setIsAuthenticated(authUtils.isAuthenticated());
+      setUserName(localStorage.getItem('userName') || '');
     };
 
     window.addEventListener('auth:login', handleAuthChange);
@@ -116,6 +130,11 @@ const Navbar = ({
   };
 
   /* ================ HANDLERS ================ */
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     onSearch(searchQuery);
@@ -124,6 +143,7 @@ const Navbar = ({
   const handleLogout = () => {
     authUtils.logout();
     setIsAuthenticated(false);
+    setUserName('');
     setIsDropdownOpen(false);
     onLogoutClick();
   };
@@ -172,7 +192,7 @@ const Navbar = ({
         <div className="d-flex justify-content-between align-items-center">
           {/* Logo */}
           <div className="d-flex align-items-center">
-            <h4 className="mb-0 fw-bold text-primary">
+            <h4 className="mb-0 fw-bold text-primary" style={{cursor: 'pointer'}} onClick={onLogoClick}>
               <i className="fas fa-home me-2"></i>
               StayEase
             </h4>
@@ -206,6 +226,9 @@ const Navbar = ({
                       fontSize: '14px'
                     }}
                   >
+                {isAuthenticated ? (
+                  <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                       style={{width: '32px', height: '32px', fontSize: '14px', fontWeight: 'bold'}}>
                     {getInitials(userName)}
                   </div>
                 ) : (

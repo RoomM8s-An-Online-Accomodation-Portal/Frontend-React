@@ -4,16 +4,16 @@ import imageConfig from "../../data/images.json";
 const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => {
   const [nights, setNights] = useState(room?.nights || 1);
   const [checkInDate, setCheckInDate] = useState('');
-  
+
   if (!show || !room) return null;
 
   const additionalImages = imageConfig.roomGallery[room.imageKey] || [room.image, room.image, room.image];
-  
+
   const handleNightsChange = (change) => {
     const newNights = Math.max(1, nights + change);
     setNights(newNights);
   };
-  
+
   const getCheckOutDate = () => {
     if (!checkInDate) return '';
     const checkIn = new Date(checkInDate);
@@ -21,27 +21,27 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
     checkOut.setDate(checkIn.getDate() + nights);
     return checkOut.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
   };
-  
+
   const getFormattedCheckIn = () => {
     if (!checkInDate) return '';
     const date = new Date(checkInDate);
     return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
   };
-  
+
   const checkDateOverlap = () => {
     if (!checkInDate) return null;
-    
+
     const selectedCheckIn = new Date(checkInDate);
     const selectedCheckOut = new Date(selectedCheckIn);
     selectedCheckOut.setDate(selectedCheckIn.getDate() + nights);
-    
+
     // Filter bookings for this specific room
     const roomBookings = existingBookings.filter(booking => booking.id === room.id);
-    
+
     for (const booking of roomBookings) {
       const existingCheckIn = new Date(booking.checkInDate || booking.checkIn);
       const existingCheckOut = new Date(booking.checkOutDate || booking.checkOut);
-      
+
       // Check if dates overlap
       if (selectedCheckIn < existingCheckOut && selectedCheckOut > existingCheckIn) {
         return {
@@ -51,27 +51,27 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
         };
       }
     }
-    
+
     return { isOverlapping: false };
   };
-  
+
   const totalPrice = room.pricePerNight * nights;
-  
+
   const handleBooking = () => {
     if (!checkInDate) {
       alert('Please select check-in date');
       return;
     }
-    
+
     const overlapCheck = checkDateOverlap();
     if (overlapCheck.isOverlapping) {
       alert(overlapCheck.message);
       return;
     }
-    
-    onBook({ 
-      ...room, 
-      nights, 
+
+    onBook({
+      ...room,
+      nights,
       totalPrice,
       checkIn: getFormattedCheckIn(),
       checkOut: getCheckOutDate(),
@@ -86,7 +86,7 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
       background: 'linear-gradient(135deg, rgba(245,247,250,0.95) 0%, rgba(195,207,226,0.95) 100%)'
     }}>
       <div className="modal-dialog modal-lg">
-        <div className="modal-content" style={{borderRadius: '16px'}}>
+        <div className="modal-content" style={{ borderRadius: '16px' }}>
           <div className="modal-header border-0 pb-0">
             <h5 className="modal-title fw-bold">{room.title}</h5>
             <button type="button" className="btn-close" onClick={onClose}></button>
@@ -95,16 +95,16 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
             <div className="row g-2 mb-4">
               {additionalImages.map((img, index) => (
                 <div key={index} className="col-4">
-                  <img 
-                    src={img} 
+                  <img
+                    src={img}
                     alt={`${room.title} ${index + 1}`}
                     className="img-fluid rounded"
-                    style={{height: '120px', objectFit: 'cover', width: '100%'}}
+                    style={{ height: '120px', objectFit: 'cover', width: '100%' }}
                   />
                 </div>
               ))}
             </div>
-            
+
             <div className="mb-3">
               <h6 className="fw-bold">Location</h6>
               <p className="text-muted mb-0">
@@ -112,7 +112,7 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
                 {room.location}
               </p>
             </div>
-            
+
             <div className="mb-3">
               <h6 className="fw-bold">Amenities</h6>
               <div className="d-flex flex-wrap gap-2">
@@ -122,14 +122,14 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
                 <span className="badge bg-light text-dark">Parking</span>
               </div>
             </div>
-            
+
             <div className="mb-4">
               <h6 className="fw-bold">Booking Details</h6>
               <div className="row g-3">
                 <div className="col-12">
                   <label className="form-label fw-semibold">Check-in Date</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     className="form-control"
                     value={checkInDate}
                     onChange={(e) => setCheckInDate(e.target.value)}
@@ -160,7 +160,7 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
                 )}
               </div>
             </div>
-            
+
             <div className="bg-light rounded p-3 mb-3">
               <div className="d-flex justify-content-between mb-2">
                 <span>Price per night</span>
@@ -169,7 +169,7 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <span>Nights</span>
                 <div className="d-flex align-items-center gap-2">
-                  <button 
+                  <button
                     className="btn btn-outline-secondary btn-sm"
                     onClick={() => handleNightsChange(-1)}
                     disabled={nights <= 1}
@@ -177,7 +177,7 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
                     <i className="fas fa-minus"></i>
                   </button>
                   <span className="fw-bold px-3">{nights}</span>
-                  <button 
+                  <button
                     className="btn btn-outline-secondary btn-sm"
                     onClick={() => handleNightsChange(1)}
                   >
@@ -185,7 +185,7 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
                   </button>
                 </div>
               </div>
-              <hr className="my-2"/>
+              <hr className="my-2" />
               <div className="d-flex justify-content-between">
                 <span className="fw-bold">Total</span>
                 <span className="fw-bold text-primary">₹{totalPrice.toLocaleString()}</span>
@@ -196,10 +196,10 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
             <button type="button" className="btn btn-secondary" onClick={onClose}>
               Close
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn btn-primary px-4"
-              style={{background: 'linear-gradient(135deg, #ff385c, #e61e4d)', border: 'none'}}
+              style={{ background: 'linear-gradient(135deg, #ff385c, #e61e4d)', border: 'none' }}
               onClick={handleBooking}
             >
               <i className="fas fa-lock me-2"></i>

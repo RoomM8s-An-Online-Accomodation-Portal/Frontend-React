@@ -32,9 +32,12 @@ const PropertyCard = ({
   };
 
   /* ================ HANDLERS ================ */
-  const handleViewDetails = () => {
-    onViewDetails(room);
-  };
+ const handleViewDetails = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  onViewDetails(room);
+};
+
 
   const handleDeleteClick = (e) => {
     e.stopPropagation();
@@ -102,6 +105,10 @@ const PropertyCard = ({
             ₹{room.pricePerNight.toLocaleString()}/night
           </span>
           
+          <div className="small fw-semibold text-success">
+    Earned ₹{(room.earnAmount || 0).toLocaleString()}
+  </div>
+
           <div className="text-muted small">
             <i className="fas fa-star text-warning me-1"></i>
             {room.rating} ({room.reviews})
