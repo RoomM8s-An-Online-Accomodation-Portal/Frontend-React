@@ -18,6 +18,8 @@ const HomePage = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [allRooms, setAllRooms] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [noResultsMessage, setNoResultsMessage] = useState("");
 
   useEffect(() => {
     const rooms = dataStore.getAllRooms();
@@ -31,6 +33,27 @@ const HomePage = () => {
 
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    const handleSearchEvent = (event) => {
+      const query = event.detail;
+      setSearchQuery(query);
+      performSearch(query);
+    };
+
+    window.addEventListener('search', handleSearchEvent);
+    return () => window.removeEventListener('search', handleSearchEvent);
+  }, [allRooms]);
+
+  useEffect(() => {
+    const handleClearSearchEvent = () => {
+      setSearchQuery("");
+      performSearch("");
+    };
+
+    window.addEventListener('clearSearch', handleClearSearchEvent);
+    return () => window.removeEventListener('clearSearch', handleClearSearchEvent);
+  }, [allRooms]);
 
   const handleRemove = (bookingIndex) => {
     setBookings((prev) => prev.filter((_, index) => index !== bookingIndex));
@@ -68,15 +91,31 @@ const HomePage = () => {
     setSelectedBooking(null);
   };
 
-  const handleSearch = (query) => {
+  const performSearch = (query) => {
     if (!query.trim()) {
       setFilteredRooms(allRooms);
+      setNoResultsMessage("");
     } else {
-      const filtered = allRooms.filter(room => 
+      const filtered = allRooms.filter(room =>
         room.location.toLowerCase().includes(query.toLowerCase())
       );
       setFilteredRooms(filtered);
+      if (filtered.length === 0) {
+        setNoResultsMessage(`Sorry, no rooms are currently available in "${query}". Please try searching for a different location or check back later for new listings.`);
+      } else {
+        setNoResultsMessage("");
+      }
     }
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    performSearch(query);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    performSearch("");
   };
 
   const handleNavbarLogin = () => {
@@ -112,7 +151,19 @@ const HomePage = () => {
       <div className="container py-4">
         <div className="row">
           <div className={bookings.length > 0 ? "col-lg-8" : "col-12"}>
-            <h2 className="mb-4 fw-bold">Available Rooms</h2>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h2 className="fw-bold mb-0">Available Rooms</h2>
+              {searchQuery && (
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={handleClearSearch}
+                  title="Clear search and show all rooms"
+                >
+                  <i className="fas fa-times me-1"></i>
+                  Clear Search
+                </button>
+              )}
+            </div>
             <div className="row g-4">
               {filteredRooms.map((room) => (
                 <div
@@ -123,6 +174,14 @@ const HomePage = () => {
                 </div>
               ))}
             </div>
+            {noResultsMessage && (
+              <div className="text-center mt-4">
+                <div className="alert alert-info" role="alert">
+                  <i className="fas fa-info-circle me-2"></i>
+                  {noResultsMessage}
+                </div>
+              </div>
+            )}
           </div>
 
           {bookings.length > 0 && (
