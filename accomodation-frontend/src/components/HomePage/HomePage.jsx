@@ -57,10 +57,12 @@ const HomePage = () => {
     window.addEventListener('clearSearch', handleClearSearchEvent);
     return () => window.removeEventListener('clearSearch', handleClearSearchEvent);
   }, [allRooms]);
+
+  useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
