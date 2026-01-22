@@ -40,7 +40,13 @@ const Layout = () => {
   };
 
   const handleLogoClick = () => {
-    navigate('/');
+    if (location.pathname === '/') {
+      // If on home page, scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // If on other pages, navigate to home
+      navigate('/');
+    }
   };
 
   const handlePropertyAdded = (newProperty) => {
