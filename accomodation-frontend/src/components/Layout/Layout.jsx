@@ -39,6 +39,12 @@ const Layout = () => {
     navigate('/');
   };
 
+  const handleSearch = (query) => {
+    window.dispatchEvent(new CustomEvent('search', { detail: query }));
+  };
+
+  const handleClearSearch = () => {
+    window.dispatchEvent(new CustomEvent('clearSearch'));
   const handleLogoClick = () => {
     if (location.pathname === '/') {
       // If on home page, scroll to top
@@ -56,9 +62,10 @@ const Layout = () => {
   return (
     <AppLayout 
       navbar={
-        <Navbar 
+        <Navbar
           key={authKey}
-          onSearch={(query) => {}} 
+          onSearch={handleSearch}
+          onClearSearch={handleClearSearch}
           onLoginClick={handleNavbarLogin}
           onLogoutClick={handleLogout}
           onHelpClick={handleHelpCenter}
@@ -66,7 +73,7 @@ const Layout = () => {
           onLogoClick={handleLogoClick}
           showSearch={showSearch}
         />
-      } 
+      }
       showSearch={showSearch}
     >
       <Outlet context={{ handlePropertyAdded, authKey, setAuthKey }} />

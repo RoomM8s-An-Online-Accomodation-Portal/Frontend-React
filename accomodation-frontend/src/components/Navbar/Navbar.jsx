@@ -1,6 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
 import { authUtils } from "../../utils/auth";
 
+// Helper function to get initials from name
+const getInitials = (name) => {
+  if (!name) return '';
+  const names = name.trim().split(' ');
+  if (names.length === 1) {
+    return names[0].charAt(0).toUpperCase();
+  }
+  return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+};
+
+const Navbar = ({
+  onSearch = () => {},
+  onClearSearch = () => {},
+  onLoginClick = () => {},
+  onLogoutClick = () => {},
+  onHelpClick = () => {},
+  onPropertyOwnerClick = () => {},
+  showSearch = true
 const Navbar = ({ 
   onSearch = () => {}, 
   onLoginClick = () => {}, 
@@ -14,23 +32,36 @@ const Navbar = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [userName, setUserName] = useState('');
   const [showSearchBar, setShowSearchBar] = useState(true);
+  const [userName, setUserName] = useState("");
   const dropdownRef = useRef(null);
 
   /* ================ EFFECTS ================ */
   useEffect(() => {
     setIsAuthenticated(authUtils.isAuthenticated());
+    if (authUtils.isAuthenticated()) {
+      setUserName(localStorage.getItem('userName') || '');
+    }
+
+    const handleAuthChange = () => {
+      setIsAuthenticated(authUtils.isAuthenticated());
+      if (authUtils.isAuthenticated()) {
+        setUserName(localStorage.getItem('userName') || '');
+      } else {
+        setUserName('');
+      }
     setUserName(localStorage.getItem('userName') || '');
     
     const handleAuthChange = () => {
       setIsAuthenticated(authUtils.isAuthenticated());
       setUserName(localStorage.getItem('userName') || '');
     };
-    
+
     window.addEventListener('auth:login', handleAuthChange);
     window.addEventListener('auth:logout', handleAuthChange);
-    
+
     return () => {
       window.removeEventListener('auth:login', handleAuthChange);
       window.removeEventListener('auth:logout', handleAuthChange);
@@ -38,14 +69,18 @@ const Navbar = ({
   }, []);
 
   useEffect(() => {
-    if (!showSearch) return;
-    
     let ticking = false;
-    
+
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          setShowSearchBar(window.scrollY < 80);
+          const scrolled = window.scrollY > 50;
+          console.log('Scroll detected:', window.scrollY, 'isScrolled:', scrolled);
+          setIsScrolled(scrolled);
+          // Keep search bar always visible when showSearch is true
+          if (showSearch) {
+            setShowSearchBar(true);
+          }
           ticking = false;
         });
         ticking = true;
@@ -62,9 +97,18 @@ const Navbar = ({
         setIsDropdownOpen(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleClearSearchEvent = () => {
+      setSearchQuery("");
+    };
+
+    window.addEventListener('clearSearch', handleClearSearchEvent);
+    return () => window.removeEventListener('clearSearch', handleClearSearchEvent);
   }, []);
 
   /* ================ STYLES ================ */
@@ -77,15 +121,11 @@ const Navbar = ({
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
     },
     dropdown: {
-      minWidth: '200px', 
+      minWidth: '200px',
       borderRadius: '12px',
       backgroundColor: '#334155',
       border: '1px solid #495057',
       zIndex: 1030
-    },
-    searchContainer: {
-      opacity: showSearchBar ? 1 : 0,
-      visibility: showSearchBar ? 'visible' : 'hidden'
     }
   };
 
@@ -146,7 +186,9 @@ const Navbar = ({
   return (
     <nav style={styles.nav}>
       {/* Top Row */}
-      <div className="container py-3">
+      <div className={`container ${isScrolled ? 'py-1' : 'py-3'}`} style={{
+        transition: 'padding 0.3s ease'
+      }}>
         <div className="d-flex justify-content-between align-items-center">
           {/* Logo */}
           <div className="d-flex align-items-center">
@@ -174,6 +216,16 @@ const Navbar = ({
                 onClick={handleDropdownToggle}
               >
                 <i className="fas fa-bars me-2"></i>
+                {isAuthenticated && userName ? (
+                  <div
+                    className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      backgroundColor: '#007bff',
+                      fontSize: '14px'
+                    }}
+                  >
                 {isAuthenticated ? (
                   <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
                        style={{width: '32px', height: '32px', fontSize: '14px', fontWeight: 'bold'}}>
@@ -211,7 +263,7 @@ const Navbar = ({
 
       {/* Search Section */}
       {showSearch && (
-        <div className="container pb-3" style={styles.searchContainer}>
+        <div className="container pb-3">
           <div className="row justify-content-center">
             <div className="col-md-6">
               <form onSubmit={handleSearch} className="d-flex">
@@ -229,6 +281,16 @@ const Navbar = ({
                   <button className="btn btn-primary px-4" type="submit">
                     <i className="fas fa-search"></i>
                   </button>
+                  {searchQuery && (
+                    <button
+                      className="btn btn-outline-secondary"
+                      type="button"
+                      onClick={onClearSearch}
+                      title="Clear search"
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  )}
                 </div>
               </form>
             </div>

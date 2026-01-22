@@ -1,6 +1,6 @@
 import React from "react";
 
-const ReviewStep = ({ booking = {} }) => {
+const ReviewStep = ({ booking = {}, bookings = [], selectedPaymentMethod = '', onConfirmPayment = () => {} }) => {
   /* ================ STYLES ================ */
   const styles = {
     card: {
@@ -64,9 +64,10 @@ const ReviewStep = ({ booking = {} }) => {
           </label>
         </div>
 
-        <button 
+        <button
           className="btn btn-primary w-100 py-3 fw-bold fs-5"
           style={styles.confirmButton}
+          onClick={onConfirmPayment}
         >
           <i className="fas fa-lock me-2"></i>
           Confirm and pay
