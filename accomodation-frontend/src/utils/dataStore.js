@@ -28,7 +28,8 @@ class DataStore {
   addRoom(roomData) {
     const newRoom = {
       ...roomData,
-      id: Math.max(...this.rooms.map(r => r.id), 0) + 1
+      id: Math.max(...this.rooms.map(r => r.id), 0) + 1,
+      earnAmount: 0
     };
     this.rooms.push(newRoom);
     this.notify();
@@ -38,6 +39,16 @@ class DataStore {
   removeRoom(roomId) {
     this.rooms = this.rooms.filter(room => room.id !== roomId);
     this.notify();
+  }
+
+  updateRoom(roomId, updatedData) {
+    const index = this.rooms.findIndex(room => room.id === roomId);
+    if (index !== -1) {
+      this.rooms[index] = { ...this.rooms[index], ...updatedData };
+      this.notify();
+      return this.rooms[index];
+    }
+    return null;
   }
 }
 
