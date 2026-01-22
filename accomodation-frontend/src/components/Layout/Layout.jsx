@@ -39,6 +39,10 @@ const Layout = () => {
     navigate('/');
   };
 
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   const handlePropertyAdded = (newProperty) => {
     dataStore.addRoom(newProperty);
   };
@@ -53,6 +57,7 @@ const Layout = () => {
           onLogoutClick={handleLogout}
           onHelpClick={handleHelpCenter}
           onPropertyOwnerClick={handlePropertyOwner}
+          onLogoClick={handleLogoClick}
           showSearch={showSearch}
         />
       } 
