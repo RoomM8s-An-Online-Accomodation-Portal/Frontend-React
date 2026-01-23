@@ -53,7 +53,13 @@ const Login = () => {
       mockUsers.push(newUser);
       authUtils.login(newUser);
       setAuthKey(prev => prev + 1);
-      navigate('/');
+      
+      // Role-based redirection
+      if (role === 'property_owner') {
+        navigate('/property-dashboard');
+      } else {
+        navigate('/');
+      }
     } else {
       // Login logic
       const user = mockUsers.find(u => u.email === email && u.password === password);
@@ -61,7 +67,15 @@ const Login = () => {
       if (user) {
         authUtils.login(user);
         setAuthKey(prev => prev + 1);
-        navigate('/');
+        
+        // Role-based redirection
+        if (user.role === 'admin') {
+          navigate('/admin');
+        } else if (user.role === 'property_owner') {
+          navigate('/property-dashboard');
+        } else {
+          navigate('/');
+        }
       } else {
         setError('Invalid email or password');
       }
