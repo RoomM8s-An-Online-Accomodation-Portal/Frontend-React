@@ -5,7 +5,7 @@ const ChatBot = ({ isOpen, onClose = () => {} }) => {
   const [messages, setMessages] = useState([
     { 
       id: 1, 
-      text: "Hi! I'm RoomMate's assistant. I can help with bookings, payments, cancellations, and more. What do you need help with?", 
+      text: "Hi! I'm StayEase's assistant. I can help with bookings, payments, cancellations, and more. What do you need help with?", 
       sender: 'bot', 
       timestamp: new Date() 
     }
@@ -103,7 +103,7 @@ const ChatBot = ({ isOpen, onClose = () => {} }) => {
       return "Refunds are processed within 5-7 business days. Cancellations made 24+ hours before check-in receive full refunds.";
     }
     if (input.includes('contact') || input.includes('support')) {
-      return "Our support team is available 24/7 at support@roommates.com or call 1-800-ROOMS. You can also check our Help Center.";
+      return "Our support team is available 24/7 at support@stayease.com or call 1-800-ROOMS. You can also check our Help Center.";
     }
     if (input.includes('check') && (input.includes('in') || input.includes('out'))) {
       return "Standard check-in is 3:00 PM and check-out is 11:00 AM. Contact your host for early/late arrangements.";
@@ -174,7 +174,7 @@ const ChatBot = ({ isOpen, onClose = () => {} }) => {
               <i className="fas fa-robot text-primary"></i>
             </div>
             <div>
-              <h6 className="text-white mb-0 fw-bold">RoomM8's Assistant</h6>
+              <h6 className="text-white mb-0 fw-bold">StayEase's Assistant</h6>
               <small className="text-white-50">Online now</small>
             </div>
           </div>
