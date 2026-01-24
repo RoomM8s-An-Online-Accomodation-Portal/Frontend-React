@@ -18,15 +18,8 @@ const Navbar = ({
   onLogoutClick = () => {},
   onHelpClick = () => {},
   onPropertyOwnerClick = () => {},
-  showSearch = true
-const Navbar = ({ 
-  onSearch = () => {}, 
-  onLoginClick = () => {}, 
-  onLogoutClick = () => {}, 
-  onHelpClick = () => {}, 
-  onPropertyOwnerClick = () => {}, 
   onLogoClick = () => {},
-  showSearch = true 
+  showSearch = true
 }) => {
   /* ================ STATE ================ */
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -35,36 +28,33 @@ const Navbar = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const [userName, setUserName] = useState('');
   const [showSearchBar, setShowSearchBar] = useState(true);
-  const [userName, setUserName] = useState("");
   const dropdownRef = useRef(null);
 
   /* ================ EFFECTS ================ */
   useEffect(() => {
     setIsAuthenticated(authUtils.isAuthenticated());
-    if (authUtils.isAuthenticated()) {
-      setUserName(localStorage.getItem('userName') || '');
-    }
+    setUserName(authUtils.getUserName());
 
     const handleAuthChange = () => {
       setIsAuthenticated(authUtils.isAuthenticated());
-      if (authUtils.isAuthenticated()) {
-        setUserName(localStorage.getItem('userName') || '');
-      } else {
-        setUserName('');
+      setUserName(authUtils.getUserName());
+    };
+
+    const handleStorageChange = (e) => {
+      if (e.key === 'userName' || e.key === 'isAuthenticated') {
+        setIsAuthenticated(authUtils.isAuthenticated());
+        setUserName(authUtils.getUserName());
       }
-    setUserName(localStorage.getItem('userName') || '');
-    
-    const handleAuthChange = () => {
-      setIsAuthenticated(authUtils.isAuthenticated());
-      setUserName(localStorage.getItem('userName') || '');
     };
 
     window.addEventListener('auth:login', handleAuthChange);
     window.addEventListener('auth:logout', handleAuthChange);
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
       window.removeEventListener('auth:login', handleAuthChange);
       window.removeEventListener('auth:logout', handleAuthChange);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
@@ -226,9 +216,6 @@ const Navbar = ({
                       fontSize: '14px'
                     }}
                   >
-                {isAuthenticated ? (
-                  <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
-                       style={{width: '32px', height: '32px', fontSize: '14px', fontWeight: 'bold'}}>
                     {getInitials(userName)}
                   </div>
                 ) : (

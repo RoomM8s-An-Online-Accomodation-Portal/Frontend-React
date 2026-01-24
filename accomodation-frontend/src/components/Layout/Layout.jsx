@@ -45,6 +45,8 @@ const Layout = () => {
 
   const handleClearSearch = () => {
     window.dispatchEvent(new CustomEvent('clearSearch'));
+  };
+
   const handleLogoClick = () => {
     if (location.pathname === '/') {
       // If on home page, scroll to top

@@ -57,6 +57,8 @@ const HomePage = () => {
     window.addEventListener('clearSearch', handleClearSearchEvent);
     return () => window.removeEventListener('clearSearch', handleClearSearchEvent);
   }, [allRooms]);
+
+  useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
     };
