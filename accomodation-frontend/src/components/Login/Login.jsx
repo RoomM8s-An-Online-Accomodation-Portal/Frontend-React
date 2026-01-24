@@ -54,8 +54,11 @@ const Login = () => {
       authUtils.login(newUser);
       setAuthKey(prev => prev + 1);
       
-      // Role-based redirection
-      if (role === 'property_owner') {
+      // Check for redirect after login
+      const redirectPath = authUtils.getRedirectAfterLogin();
+      if (redirectPath) {
+        navigate(redirectPath);
+      } else if (role === 'property_owner') {
         navigate('/property-dashboard');
       } else {
         navigate('/');
@@ -68,8 +71,11 @@ const Login = () => {
         authUtils.login(user);
         setAuthKey(prev => prev + 1);
         
-        // Role-based redirection
-        if (user.role === 'admin') {
+        // Check for redirect after login first
+        const redirectPath = authUtils.getRedirectAfterLogin();
+        if (redirectPath) {
+          navigate(redirectPath);
+        } else if (user.role === 'admin') {
           navigate('/admin');
         } else if (user.role === 'property_owner') {
           navigate('/property-dashboard');

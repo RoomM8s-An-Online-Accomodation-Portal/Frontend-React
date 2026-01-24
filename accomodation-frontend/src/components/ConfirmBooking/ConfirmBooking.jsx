@@ -123,6 +123,7 @@ const ConfirmBooking = ({ bookings = [], onBack = () => {} }) => {
   /* ================ HANDLERS ================ */
   const handleNavigateToLogin = () => {
     localStorage.setItem('pendingBookings', JSON.stringify(bookings));
+    authUtils.setRedirectAfterLogin('/confirm-booking');
     setShowLogin(true);
   };
 

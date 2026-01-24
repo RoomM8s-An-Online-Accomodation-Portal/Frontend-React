@@ -41,10 +41,12 @@ const Navbar = ({
 
     window.addEventListener('auth:login', handleAuthChange);
     window.addEventListener('auth:logout', handleAuthChange);
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
       window.removeEventListener('auth:login', handleAuthChange);
       window.removeEventListener('auth:logout', handleAuthChange);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 

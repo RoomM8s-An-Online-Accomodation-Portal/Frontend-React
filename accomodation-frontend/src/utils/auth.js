@@ -11,9 +11,16 @@ export const authUtils = {
     localStorage.setItem('userName', userData.name);
     localStorage.setItem('userRole', userData.role || 'user');
     
-    // Dispatch global event
+    // Dispatch global event for immediate UI updates
     window.dispatchEvent(new CustomEvent(AUTH_EVENTS.LOGIN, { 
       detail: userData 
+    }));
+    
+    // Force storage event for cross-component sync
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'userName',
+      newValue: userData.name,
+      storageArea: localStorage
     }));
   },
 
@@ -23,9 +30,17 @@ export const authUtils = {
     localStorage.removeItem('userName');
     localStorage.removeItem('userRole');
     localStorage.removeItem('pendingBookings');
+    localStorage.removeItem('redirectAfterLogin');
     
     // Dispatch global event
     window.dispatchEvent(new CustomEvent(AUTH_EVENTS.LOGOUT));
+    
+    // Force storage event for cross-component sync
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'userName',
+      newValue: null,
+      storageArea: localStorage
+    }));
   },
 
   isAuthenticated: () => {
@@ -36,7 +51,21 @@ export const authUtils = {
     return localStorage.getItem('userRole') || 'user';
   },
 
+  getUserName: () => {
+    return localStorage.getItem('userName') || '';
+  },
+
   hasRole: (role) => {
     return authUtils.getUserRole() === role;
+  },
+
+  setRedirectAfterLogin: (path) => {
+    localStorage.setItem('redirectAfterLogin', path);
+  },
+
+  getRedirectAfterLogin: () => {
+    const redirect = localStorage.getItem('redirectAfterLogin');
+    localStorage.removeItem('redirectAfterLogin');
+    return redirect;
   }
 };
