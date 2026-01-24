@@ -32,20 +32,12 @@ const Navbar = ({
 
   /* ================ EFFECTS ================ */
   useEffect(() => {
-    setIsAuthenticated(authUtils.isAuthenticated());
-    setUserName(authUtils.getUserName());
-
     const handleAuthChange = () => {
       setIsAuthenticated(authUtils.isAuthenticated());
-      setUserName(authUtils.getUserName());
+      setUserName(localStorage.getItem('userName') || '');
     };
 
-    const handleStorageChange = (e) => {
-      if (e.key === 'userName' || e.key === 'isAuthenticated') {
-        setIsAuthenticated(authUtils.isAuthenticated());
-        setUserName(authUtils.getUserName());
-      }
-    };
+    handleAuthChange(); // Initial check
 
     window.addEventListener('auth:login', handleAuthChange);
     window.addEventListener('auth:logout', handleAuthChange);
@@ -206,16 +198,9 @@ const Navbar = ({
                 onClick={handleDropdownToggle}
               >
                 <i className="fas fa-bars me-2"></i>
-                {isAuthenticated && userName ? (
-                  <div
-                    className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      backgroundColor: '#007bff',
-                      fontSize: '14px'
-                    }}
-                  >
+                {isAuthenticated ? (
+                  <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                       style={{width: '32px', height: '32px', fontSize: '14px', fontWeight: 'bold'}}>
                     {getInitials(userName)}
                   </div>
                 ) : (

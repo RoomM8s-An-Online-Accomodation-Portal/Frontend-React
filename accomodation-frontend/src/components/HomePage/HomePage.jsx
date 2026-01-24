@@ -62,7 +62,7 @@ const HomePage = () => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
