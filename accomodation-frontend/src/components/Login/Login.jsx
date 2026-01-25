@@ -16,6 +16,7 @@ const Login = () => {
   const [role, setRole] = useState("user");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
+  const [mobile, setMobile] = useState("");
   const [error, setError] = useState("");
   const [toast, setToast] = useState({ show: false, message: '', type: 'error' });
 
@@ -33,7 +34,59 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    if (!email.trim()) {
+      showToast('Email is required', 'error');
+      return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showToast('Please enter a valid email address', 'error');
+      return;
+    }
+    
+    if (!password.trim()) {
+      showToast('Password is required', 'error');
+      return;
+    }
+    
     if (isSignUp) {
+      if (!firstName.trim()) {
+        showToast('First name is required', 'error');
+        return;
+      }
+      
+      if (!lastName.trim()) {
+        showToast('Last name is required', 'error');
+        return;
+      }
+      
+      if (!confirmPassword.trim()) {
+        showToast('Please confirm your password', 'error');
+        return;
+      }
+      
+      if (!gender) {
+        showToast('Please select your gender', 'error');
+        return;
+      }
+      
+      if (!age.trim()) {
+        showToast('Age is required', 'error');
+        return;
+      }
+      
+      if (!mobile.trim()) {
+        showToast('Mobile number is required', 'error');
+        return;
+      }
+      
+      const mobileRegex = /^[0-9]{10}$/;
+      if (!mobileRegex.test(mobile)) {
+        showToast('Please enter a valid 10-digit mobile number', 'error');
+        return;
+      }
+      
       if (password !== confirmPassword) {
         showToast('Passwords do not match', 'error');
         return;
@@ -51,7 +104,8 @@ const Login = () => {
         name: `${firstName} ${lastName}`,
         role,
         gender,
-        age: parseInt(age)
+        age: parseInt(age),
+        mobile
       };
       
       mockUsers.push(newUser);
@@ -123,7 +177,6 @@ const Login = () => {
                           className="form-control" 
                           value={firstName}
                           onChange={(e) => setFirstName(e.target.value)}
-                          required 
                         />
                       </div>
                       <div className="col-6">
@@ -133,7 +186,6 @@ const Login = () => {
                           className="form-control" 
                           value={lastName}
                           onChange={(e) => setLastName(e.target.value)}
-                          required 
                         />
                       </div>
                     </div>
@@ -148,7 +200,6 @@ const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={isSignUp ? "Enter your email" : "user@test.com, admin@test.com, or owner@test.com"}
-                    required 
                   />
                 </div>
                 
@@ -160,7 +211,6 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={isSignUp ? "Enter password" : "123456, admin, or owner123"}
-                    required 
                   />
                 </div>
                 
@@ -173,7 +223,6 @@ const Login = () => {
                         className="form-control" 
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        required 
                       />
                     </div>
                     
@@ -185,7 +234,7 @@ const Login = () => {
                           value={role}
                           onChange={(e) => setRole(e.target.value)}
                         >
-                          <option value="user">User</option>
+                          <option value="user">Customer</option>
                           <option value="property_owner">Property Owner</option>
                         </select>
                       </div>
@@ -195,7 +244,6 @@ const Login = () => {
                           className="form-select" 
                           value={gender}
                           onChange={(e) => setGender(e.target.value)}
-                          required
                         >
                           <option value="">Select Gender</option>
                           <option value="male">Male</option>
@@ -214,7 +262,17 @@ const Login = () => {
                         onChange={(e) => setAge(e.target.value)}
                         min="18"
                         max="100"
-                        required 
+                      />
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">Mobile Number</label>
+                      <input 
+                        type="tel" 
+                        className="form-control" 
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value)}
+                        placeholder="Enter 10-digit mobile number"
                       />
                     </div>
                   </>

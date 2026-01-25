@@ -4,6 +4,7 @@ class DataStore {
   constructor() {
     this.rooms = [...roomsData];
     this.bookings = JSON.parse(localStorage.getItem('globalBookings') || '[]');
+    this.complaints = JSON.parse(localStorage.getItem('globalComplaints') || '[]');
     this.listeners = [];
   }
 
@@ -65,6 +66,36 @@ class DataStore {
 
   getAllBookings() {
     return [...this.bookings];
+  }
+
+  cancelBooking(bookingId) {
+    const bookingIndex = this.bookings.findIndex(booking => booking.bookingId === bookingId);
+    if (bookingIndex !== -1) {
+      this.bookings[bookingIndex].status = 'Cancelled';
+      localStorage.setItem('globalBookings', JSON.stringify(this.bookings));
+      return true;
+    }
+    return false;
+  }
+
+  addComplaint(complaint) {
+    this.complaints.push(complaint);
+    localStorage.setItem('globalComplaints', JSON.stringify(this.complaints));
+    return complaint;
+  }
+
+  getAllComplaints() {
+    return [...this.complaints];
+  }
+
+  updateComplaintStatus(complaintId, status) {
+    const index = this.complaints.findIndex(c => c.id === complaintId);
+    if (index !== -1) {
+      this.complaints[index].status = status;
+      localStorage.setItem('globalComplaints', JSON.stringify(this.complaints));
+      return this.complaints[index];
+    }
+    return null;
   }
 
   // Global admin actions
@@ -130,7 +161,7 @@ class DataStore {
     const checkOut = new Date(checkOutDate);
 
     return !this.bookings.some(booking => {
-      if (booking.id !== roomId) return false;
+      if (booking.id !== roomId || booking.status === 'Cancelled') return false;
 
       const existingCheckIn = new Date(booking.checkInDate);
       const existingCheckOut = new Date(booking.checkOutDate);
