@@ -6,6 +6,7 @@ import Login from './components/Login/Login';
 import HelpCenter from './components/HelpCenter/HelpCenter';
 import PropertyOwnerDashboard from './components/PropertyOwner/PropertyOwnerDashboard';
 import AddProperty from './components/PropertyOwner/AddProperty';
+import Profile from './components/Profile/Profile';
 import About from './components/About/About';
 import Events from './components/Events/Events';
 import Terms from './components/Terms/Terms';
@@ -23,6 +24,7 @@ const App = () => {
         <Route index element={<HomePage />} />
         <Route path="login" element={<Login />} />
         <Route path="help" element={<HelpCenter />} />
+        <Route path="profile" element={<Profile />} />
         <Route path="contact" element={<ContactUs />} />
         <Route path="about" element={<About />} />
         <Route path="events" element={<Events />} />

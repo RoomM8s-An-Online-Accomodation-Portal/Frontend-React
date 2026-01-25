@@ -34,6 +34,14 @@ const Layout = () => {
     navigate('/property-dashboard');
   };
 
+  const handleAdmin = () => {
+    navigate('/admin');
+  };
+
+  const handleProfile = () => {
+    navigate('/profile');
+  };
+
   const handleLogout = () => {
     setAuthKey(prev => prev + 1);
     navigate('/');
@@ -72,6 +80,8 @@ const Layout = () => {
           onLogoutClick={handleLogout}
           onHelpClick={handleHelpCenter}
           onPropertyOwnerClick={handlePropertyOwner}
+          onAdminClick={handleAdmin}
+          onProfileClick={handleProfile}
           onLogoClick={handleLogoClick}
           showSearch={showSearch}
         />

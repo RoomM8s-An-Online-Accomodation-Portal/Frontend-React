@@ -1,16 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { authUtils } from "../../utils/auth";
 
-// Helper function to get initials from name
-const getInitials = (name) => {
-  if (!name) return '';
-  const names = name.trim().split(' ');
-  if (names.length === 1) {
-    return names[0].charAt(0).toUpperCase();
-  }
-  return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
-};
-
 const Navbar = ({
   onSearch = () => {},
   onClearSearch = () => {},
@@ -18,6 +8,8 @@ const Navbar = ({
   onLogoutClick = () => {},
   onHelpClick = () => {},
   onPropertyOwnerClick = () => {},
+  onAdminClick = () => {},
+  onProfileClick = () => {},
   onLogoClick = () => {},
   showSearch = true
 }) => {
@@ -27,6 +19,7 @@ const Navbar = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [userName, setUserName] = useState('');
+  const [userRole, setUserRole] = useState('');
   const [showSearchBar, setShowSearchBar] = useState(true);
   const dropdownRef = useRef(null);
 
@@ -35,6 +28,13 @@ const Navbar = ({
     const handleAuthChange = () => {
       setIsAuthenticated(authUtils.isAuthenticated());
       setUserName(localStorage.getItem('userName') || '');
+      setUserRole(localStorage.getItem('userRole') || '');
+    };
+
+    const handleStorageChange = () => {
+      setIsAuthenticated(authUtils.isAuthenticated());
+      setUserName(localStorage.getItem('userName') || '');
+      setUserRole(localStorage.getItem('userRole') || '');
     };
 
     handleAuthChange(); // Initial check
@@ -130,6 +130,21 @@ const Navbar = ({
     onLogoutClick();
   };
 
+  const handleAdminClick = (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      handleLoginClick();
+      return;
+    }
+    
+    if (userRole !== 'admin') {
+      alert('Access denied. Only admins can access this section.');
+      return;
+    }
+    
+    onAdminClick();
+  };
+
   const handlePropertyOwnerClick = (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
@@ -137,7 +152,6 @@ const Navbar = ({
       return;
     }
     
-    const userRole = authUtils.getUserRole();
     if (userRole !== 'property_owner') {
       alert('Access denied. Only property owners can access this section.');
       return;
@@ -149,6 +163,11 @@ const Navbar = ({
   const handleLoginClick = () => {
     setIsDropdownOpen(false);
     onLoginClick();
+  };
+
+  const handleProfileClick = () => {
+    setIsDropdownOpen(false);
+    onProfileClick();
   };
 
   const handleHelpClick = () => {
@@ -182,14 +201,24 @@ const Navbar = ({
 
           {/* Right Side */}
           <div className="d-flex align-items-center gap-3">
-            {/* Property Owner Link */}
-            <a 
-              href="#" 
-              className="text-decoration-none text-dark fw-semibold hover-link" 
-              onClick={handlePropertyOwnerClick}
-            >
-              Property Owner
-            </a>
+            {/* Admin/Property Owner Link */}
+            {userRole === 'admin' ? (
+              <a 
+                href="#" 
+                className="text-decoration-none text-dark fw-semibold hover-link" 
+                onClick={handleAdminClick}
+              >
+                Admin Dashboard
+              </a>
+            ) : (
+              <a 
+                href="#" 
+                className="text-decoration-none text-dark fw-semibold hover-link" 
+                onClick={handlePropertyOwnerClick}
+              >
+                Property Owner
+              </a>
+            )}
 
             {/* User Dropdown */}
             <div className="position-relative" ref={dropdownRef}>
@@ -216,10 +245,17 @@ const Navbar = ({
                       Login / Sign Up
                     </button>
                   ) : (
-                    <button className="dropdown-item py-2 text-white" onClick={handleLogout}>
-                      <i className="fas fa-sign-out-alt me-2"></i>
-                      Logout
-                    </button>
+                    <>
+                      <button className="dropdown-item py-2 text-white" onClick={handleProfileClick}>
+                        <i className="fas fa-user me-2"></i>
+                        Profile
+                      </button>
+                      <hr className="dropdown-divider my-1" style={{borderColor: '#6c757d'}} />
+                      <button className="dropdown-item py-2 text-white" onClick={handleLogout}>
+                        <i className="fas fa-sign-out-alt me-2"></i>
+                        Logout
+                      </button>
+                    </>
                   )}
                   <hr className="dropdown-divider my-1" style={{borderColor: '#6c757d'}} />
                   <button className="dropdown-item py-2 text-white" onClick={handleHelpClick}>
@@ -270,7 +306,7 @@ const Navbar = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .hover-link:hover {
           color: #ff385c !important;
           transition: color 0.2s ease;

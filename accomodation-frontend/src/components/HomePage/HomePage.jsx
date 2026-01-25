@@ -88,6 +88,9 @@ const HomePage = () => {
   };
 
   const handleBookRoom = (room) => {
+    // Add to global bookings
+    dataStore.addBooking(room);
+    // Add to local cart
     setBookings(prev => [...prev, room]);
     setShowDetails(false);
     setSelectedRoom(null);
@@ -224,7 +227,7 @@ const HomePage = () => {
         show={showDetails}
         onClose={handleCloseDetails}
         onBook={handleBookRoom}
-        existingBookings={bookings}
+        existingBookings={dataStore.getAllBookings()}
       />
 
       {/* Fixed Buttons */}

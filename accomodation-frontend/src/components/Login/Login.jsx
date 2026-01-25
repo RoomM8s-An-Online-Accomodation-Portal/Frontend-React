@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { authUtils } from "../../utils/auth";
 import { mockUsers } from "../../data/mockData";
+import Toast from "../Toast/Toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Login = () => {
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
   const [error, setError] = useState("");
+  const [toast, setToast] = useState({ show: false, message: '', type: 'error' });
 
   // Extract inline styles to local style objects
   const cardStyle = { borderRadius: '16px' };
@@ -24,18 +26,21 @@ const Login = () => {
     border: 'none' 
   };
 
+  const showToast = (message, type = 'error') => {
+    setToast({ show: true, message, type });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
     if (isSignUp) {
-      // Sign up logic
       if (password !== confirmPassword) {
-        setError('Passwords do not match');
+        showToast('Passwords do not match', 'error');
         return;
       }
       
       if (mockUsers.find(u => u.email === email)) {
-        setError('Email already exists');
+        showToast('Email already exists', 'error');
         return;
       }
       
@@ -49,41 +54,39 @@ const Login = () => {
         age: parseInt(age)
       };
       
-      // In a real app, you'd send this to your backend
       mockUsers.push(newUser);
       authUtils.login(newUser);
       setAuthKey(prev => prev + 1);
+      showToast('Account created successfully!', 'success');
       
-      // Check for redirect after login
-      const redirectPath = authUtils.getRedirectAfterLogin();
-      if (redirectPath) {
-        navigate(redirectPath);
-      } else if (role === 'property_owner') {
-        navigate('/property-dashboard');
-      } else {
-        navigate('/');
-      }
+      setTimeout(() => {
+        const redirectPath = authUtils.getRedirectAfterLogin();
+        if (redirectPath) {
+          navigate(redirectPath);
+        } else {
+          // Always redirect to home page for all users after signup
+          navigate('/');
+        }
+      }, 1500);
     } else {
-      // Login logic
       const user = mockUsers.find(u => u.email === email && u.password === password);
       
       if (user) {
         authUtils.login(user);
         setAuthKey(prev => prev + 1);
+        showToast('Login successful!', 'success');
         
-        // Check for redirect after login first
-        const redirectPath = authUtils.getRedirectAfterLogin();
-        if (redirectPath) {
-          navigate(redirectPath);
-        } else if (user.role === 'admin') {
-          navigate('/admin');
-        } else if (user.role === 'property_owner') {
-          navigate('/property-dashboard');
-        } else {
-          navigate('/');
-        }
+        setTimeout(() => {
+          const redirectPath = authUtils.getRedirectAfterLogin();
+          if (redirectPath) {
+            navigate(redirectPath);
+          } else {
+            // Always redirect to home page for all users after login
+            navigate('/');
+          }
+        }, 1500);
       } else {
-        setError('Invalid email or password');
+        showToast('Invalid email or password', 'error');
       }
     }
   };
@@ -249,6 +252,13 @@ const Login = () => {
           </div>
         </div>
       </div>
+      
+      <Toast 
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ show: false, message: '', type: 'error' })}
+      />
     </div>
   );
 };

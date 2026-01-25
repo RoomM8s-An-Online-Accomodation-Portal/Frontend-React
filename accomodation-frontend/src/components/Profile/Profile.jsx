@@ -1,0 +1,260 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authUtils } from '../../utils/auth';
+import { mockUsers } from '../../data/mockData';
+import { dataStore } from '../../utils/dataStore';
+import Toast from '../Toast/Toast';
+
+const Profile = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [userBookings, setUserBookings] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'error' });
+
+  useEffect(() => {
+    const userEmail = localStorage.getItem('userEmail');
+    const userData = mockUsers.find(u => u.email === userEmail);
+    if (userData) {
+      setUser(userData);
+      // Get user's booking history
+      const allBookings = dataStore.getAllBookings();
+      const userBookingHistory = allBookings.filter(booking => booking.userId === userEmail);
+      setUserBookings(userBookingHistory);
+    } else {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  const showToast = (message, type = 'error') => {
+    setToast({ show: true, message, type });
+  };
+
+  const handlePasswordUpdate = (e) => {
+    e.preventDefault();
+
+    if (!user) return;
+
+    if (user.password !== currentPassword) {
+      showToast('Current password is incorrect', 'error');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showToast('New passwords do not match', 'error');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      showToast('Password must be at least 6 characters', 'error');
+      return;
+    }
+
+    // Update password in mockUsers
+    const userIndex = mockUsers.findIndex(u => u.email === user.email);
+    if (userIndex !== -1) {
+      mockUsers[userIndex].password = newPassword;
+      showToast('Password updated successfully!', 'success');
+      setIsEditing(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    }
+  };
+
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  if (!user) return null;
+
+  return (
+    <div className="container py-4">
+      <div className="row justify-content-center">
+        <div className="col-md-8 col-lg-6">
+          <div className="card border-0 shadow" style={{ borderRadius: '16px' }}>
+            <div className="card-body p-4">
+              {/* Profile Header */}
+              <div className="text-center mb-3">
+                <div className="d-inline-block mb-2">
+                  <div className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                    style={{ width: '70px', height: '70px', backgroundColor: '#6c757d' }}>
+                    <i className="fas fa-user-circle" style={{ fontSize: '50px', color: 'white' }}></i>
+                  </div>
+                </div>
+                {user.role === 'property_owner' && <h4 className="fw-bold mb-1">{user.name}</h4>}
+                <p className="text-muted mb-1 small">{user.email}</p>
+                {user.role === 'property_owner' && (
+                  <span className="badge bg-light text-dark px-2 py-1">
+                    <i className="fas fa-crown me-1 text-warning"></i>
+                    Property Owner
+                  </span>
+                )}
+              </div>
+
+              {/* User Details */}
+              <div className="mb-4">
+                <h5 className="fw-bold mb-3">Profile Information</h5>
+                <div className="row g-3">
+                  <div className="col-6">
+                    <label className="form-label text-muted">Role</label>
+                    <p className="fw-semibold mb-0">{user.role === 'property_owner' ? 'Property Owner' : 'User'}</p>
+                  </div>
+                  <div className="col-6">
+                    <label className="form-label text-muted">Gender</label>
+                    <p className="fw-semibold mb-0">{user.gender || 'Not specified'}</p>
+                  </div>
+                  <div className="col-6">
+                    <label className="form-label text-muted">Age</label>
+                    <p className="fw-semibold mb-0">{user.age || 'Not specified'}</p>
+                  </div>
+                  <div className="col-6">
+                    <label className="form-label text-muted">Member Since</label>
+                    <p className="fw-semibold mb-0">2024</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Booking History */}
+              <div className="mb-4">
+                <h5 className="fw-bold mb-3">Booking History</h5>
+                {userBookings.length > 0 ? (
+                  <div className="row g-3">
+                    {userBookings.map((booking, index) => (
+                      <div key={booking.bookingId || index} className="col-12">
+                        <div className="card border">
+                          <div className="card-body p-3">
+                            <div className="row align-items-center">
+                              <div className="col-md-3">
+                                <img
+                                  src={booking.image}
+                                  alt={booking.title}
+                                  className="img-fluid rounded"
+                                  style={{ height: '60px', objectFit: 'cover', width: '100%' }}
+                                />
+                              </div>
+                              <div className="col-md-6">
+                                <h6 className="fw-bold mb-1">{booking.title}</h6>
+                                <p className="text-muted mb-1">
+                                  <i className="fas fa-map-marker-alt me-1"></i>
+                                  {booking.location}
+                                </p>
+                                <small className="text-muted">
+                                  {booking.checkIn} - {booking.checkOut} • {booking.nights} night(s)
+                                </small>
+                              </div>
+                              <div className="col-md-3 text-end">
+                                <p className="fw-bold text-primary mb-1">₹{booking.totalPrice?.toLocaleString()}</p>
+                                <span className="badge bg-success">Completed</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <i className="fas fa-calendar-times text-muted fs-1 mb-3"></i>
+                    <p className="text-muted">No booking history found</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Password Section */}
+              <div className="mb-4">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h5 className="fw-bold mb-0 d-flex align-items-center">
+                    <i className="fas fa-lock me-2 text-primary"></i>
+                    Password
+                  </h5>
+                  <div>
+                    <button
+                      className="btn btn-outline-secondary btn-sm me-2"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? 'Hide' : 'Show'} Password
+                    </button>
+                    <button
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={() => setIsEditing(!isEditing)}
+                    >
+                      {isEditing ? 'Cancel' : 'Change Password'}
+                    </button>
+                  </div>
+                </div>
+
+                {isEditing ? (
+                  <form onSubmit={handlePasswordUpdate}>
+                    <div className="mb-3">
+                      <label className="form-label">Current Password</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">New Password</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Confirm New Password</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      style={{ background: 'linear-gradient(135deg, #ff385c, #e61e4d)', border: 'none' }}
+                    >
+                      Update Password
+                    </button>
+                  </form>
+                ) : (
+                  <p className="text-muted">{showPassword ? user.password : '••••••••'}</p>
+                )}
+              </div>
+
+              {/* Back Button */}
+              <button
+                onClick={() => navigate('/')}
+                className="btn btn-link w-100 text-decoration-none"
+              >
+                <i className="fas fa-arrow-left me-2"></i>
+                Back to Home
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ show: false, message: '', type: 'error' })}
+      />
+    </div>
+  );
+};
+
+export default Profile;

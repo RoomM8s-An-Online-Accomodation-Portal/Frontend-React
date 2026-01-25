@@ -3,6 +3,7 @@ import { roomsData } from '../data/roomsData';
 class DataStore {
   constructor() {
     this.rooms = [...roomsData];
+    this.bookings = JSON.parse(localStorage.getItem('globalBookings') || '[]');
     this.listeners = [];
   }
 
@@ -49,6 +50,93 @@ class DataStore {
       return this.rooms[index];
     }
     return null;
+  }
+
+  addBooking(booking) {
+    const bookingWithId = {
+      ...booking,
+      bookingId: Date.now(),
+      userId: localStorage.getItem('userEmail') || 'anonymous'
+    };
+    this.bookings.push(bookingWithId);
+    localStorage.setItem('globalBookings', JSON.stringify(this.bookings));
+    return bookingWithId;
+  }
+
+  getAllBookings() {
+    return [...this.bookings];
+  }
+
+  // Global admin actions
+  updateUserStatus(userEmail, status) {
+    const adminActions = JSON.parse(localStorage.getItem('adminActions') || '[]');
+    const action = {
+      id: Date.now(),
+      type: 'USER_STATUS_UPDATE',
+      userEmail,
+      status,
+      timestamp: new Date().toISOString(),
+      adminEmail: localStorage.getItem('userEmail')
+    };
+    adminActions.push(action);
+    localStorage.setItem('adminActions', JSON.stringify(adminActions));
+    
+    // Dispatch event for real-time updates
+    window.dispatchEvent(new CustomEvent('adminAction', { detail: action }));
+    return action;
+  }
+
+  updatePropertyStatus(propertyId, status) {
+    const adminActions = JSON.parse(localStorage.getItem('adminActions') || '[]');
+    const action = {
+      id: Date.now(),
+      type: 'PROPERTY_STATUS_UPDATE',
+      propertyId,
+      status,
+      timestamp: new Date().toISOString(),
+      adminEmail: localStorage.getItem('userEmail')
+    };
+    adminActions.push(action);
+    localStorage.setItem('adminActions', JSON.stringify(adminActions));
+    
+    // Dispatch event for real-time updates
+    window.dispatchEvent(new CustomEvent('adminAction', { detail: action }));
+    return action;
+  }
+
+  deleteProperty(propertyId) {
+    const adminActions = JSON.parse(localStorage.getItem('adminActions') || '[]');
+    const action = {
+      id: Date.now(),
+      type: 'PROPERTY_DELETE',
+      propertyId,
+      timestamp: new Date().toISOString(),
+      adminEmail: localStorage.getItem('userEmail')
+    };
+    adminActions.push(action);
+    localStorage.setItem('adminActions', JSON.stringify(adminActions));
+    
+    // Dispatch event for real-time updates
+    window.dispatchEvent(new CustomEvent('adminAction', { detail: action }));
+    return action;
+  }
+
+  getAdminActions() {
+    return JSON.parse(localStorage.getItem('adminActions') || '[]');
+  }
+
+  isRoomAvailable(roomId, checkInDate, checkOutDate) {
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+
+    return !this.bookings.some(booking => {
+      if (booking.id !== roomId) return false;
+
+      const existingCheckIn = new Date(booking.checkInDate);
+      const existingCheckOut = new Date(booking.checkOutDate);
+
+      return checkIn < existingCheckOut && checkOut > existingCheckIn;
+    });
   }
 }
 

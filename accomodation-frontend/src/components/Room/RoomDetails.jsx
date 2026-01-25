@@ -1,9 +1,16 @@
 import React, { useState } from "react";
 import imageConfig from "../../data/images.json";
+import Toast from "../Toast/Toast";
+import { dataStore } from "../../utils/dataStore";
 
 const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => {
   const [nights, setNights] = useState(room?.nights || 1);
   const [checkInDate, setCheckInDate] = useState('');
+  const [toast, setToast] = useState({ show: false, message: '', type: 'error' });
+
+  const showToast = (message, type = 'error') => {
+    setToast({ show: true, message, type });
+  };
 
   if (!show || !room) return null;
 
@@ -59,13 +66,26 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
 
   const handleBooking = () => {
     if (!checkInDate) {
-      alert('Please select check-in date');
+      showToast('Please select check-in date', 'warning');
       return;
     }
 
     const overlapCheck = checkDateOverlap();
-    if (overlapCheck.isOverlapping) {
-      alert(overlapCheck.message);
+    if (overlapCheck && overlapCheck.isOverlapping) {
+      showToast(overlapCheck.message, 'error');
+      return;
+    }
+    
+    // Check global availability
+    const selectedCheckOut = new Date(new Date(checkInDate).getTime() + nights * 24 * 60 * 60 * 1000);
+    const isAvailable = dataStore.isRoomAvailable(
+      room.id, 
+      checkInDate, 
+      selectedCheckOut.toISOString().split('T')[0]
+    );
+    
+    if (!isAvailable) {
+      showToast('This room is not available for the selected dates', 'error');
       return;
     }
 
@@ -208,6 +228,13 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
           </div>
         </div>
       </div>
+      
+      <Toast 
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ show: false, message: '', type: 'error' })}
+      />
     </div>
   );
 };
