@@ -2,15 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { authUtils } from "../../utils/auth";
 
 const Navbar = ({
-  onSearch = () => {},
-  onClearSearch = () => {},
-  onLoginClick = () => {},
-  onLogoutClick = () => {},
-  onHelpClick = () => {},
-  onPropertyOwnerClick = () => {},
-  onAdminClick = () => {},
-  onProfileClick = () => {},
-  onLogoClick = () => {},
+  onSearch = () => { },
+  onClearSearch = () => { },
+  onLoginClick = () => { },
+  onLogoutClick = () => { },
+  onHelpClick = () => { },
+  onPropertyOwnerClick = () => { },
+  onAdminClick = () => { },
+  onProfileClick = () => { },
+  onLogoClick = () => { },
   showSearch = true
 }) => {
   /* ================ STATE ================ */
@@ -136,12 +136,12 @@ const Navbar = ({
       handleLoginClick();
       return;
     }
-    
+
     if (userRole !== 'admin') {
       alert('Access denied. Only admins can access this section.');
       return;
     }
-    
+
     onAdminClick();
   };
 
@@ -151,12 +151,12 @@ const Navbar = ({
       handleLoginClick();
       return;
     }
-    
+
     if (userRole !== 'property_owner') {
       alert('Access denied. Only property owners can access this section.');
       return;
     }
-    
+
     onPropertyOwnerClick();
   };
 
@@ -193,7 +193,7 @@ const Navbar = ({
         <div className="d-flex justify-content-between align-items-center">
           {/* Logo */}
           <div className="d-flex align-items-center">
-            <h4 className="mb-0 fw-bold text-primary" style={{cursor: 'pointer'}} onClick={onLogoClick}>
+            <h4 className="mb-0 fw-bold text-primary" style={{ cursor: 'pointer' }} onClick={onLogoClick}>
               <i className="fas fa-home me-2"></i>
               StayEase
             </h4>
@@ -203,17 +203,17 @@ const Navbar = ({
           <div className="d-flex align-items-center gap-3">
             {/* Admin/Property Owner Link */}
             {userRole === 'admin' ? (
-              <a 
-                href="#" 
-                className="text-decoration-none text-dark fw-semibold hover-link" 
+              <a
+                href="#"
+                className="text-decoration-none text-dark fw-semibold hover-link"
                 onClick={handleAdminClick}
               >
                 Admin Dashboard
               </a>
             ) : (
-              <a 
-                href="#" 
-                className="text-decoration-none text-dark fw-semibold hover-link" 
+              <a
+                href="#"
+                className="text-decoration-none text-dark fw-semibold hover-link"
                 onClick={handlePropertyOwnerClick}
               >
                 Property Owner
@@ -229,7 +229,7 @@ const Navbar = ({
                 <i className="fas fa-bars me-2"></i>
                 {isAuthenticated ? (
                   <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-                       style={{width: '32px', height: '32px', fontSize: '14px', fontWeight: 'bold'}}>
+                    style={{ width: '32px', height: '32px', fontSize: '14px', fontWeight: 'bold' }}>
                     {getInitials(userName)}
                   </div>
                 ) : (
@@ -250,14 +250,14 @@ const Navbar = ({
                         <i className="fas fa-user me-2"></i>
                         Profile
                       </button>
-                      <hr className="dropdown-divider my-1" style={{borderColor: '#6c757d'}} />
+                      <hr className="dropdown-divider my-1" style={{ borderColor: '#6c757d' }} />
                       <button className="dropdown-item py-2 text-white" onClick={handleLogout}>
                         <i className="fas fa-sign-out-alt me-2"></i>
                         Logout
                       </button>
                     </>
                   )}
-                  <hr className="dropdown-divider my-1" style={{borderColor: '#6c757d'}} />
+                  <hr className="dropdown-divider my-1" style={{ borderColor: '#6c757d' }} />
                   <button className="dropdown-item py-2 text-white" onClick={handleHelpClick}>
                     <i className="fas fa-question-circle me-2"></i>
                     Help Center
