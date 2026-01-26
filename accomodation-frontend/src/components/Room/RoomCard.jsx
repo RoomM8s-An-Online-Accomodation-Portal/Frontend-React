@@ -58,6 +58,16 @@ const RoomCard = ({ room, onViewDetails = () => {} }) => {
           {room.location}
         </p>
         
+        {/* Rating */}
+        <div className="d-flex align-items-center mb-2">
+          <div className="text-warning me-2">
+            {[...Array(5)].map((_, i) => (
+              <i key={i} className={`fas fa-star ${i < Math.floor(room.rating || 4.2) ? '' : 'text-muted'}`} style={{fontSize: '0.8rem'}}></i>
+            ))}
+          </div>
+          <small className="text-muted">{(room.rating || 4.2).toFixed(1)}</small>
+        </div>
+        
         {/* Amenities */}
         {room.amenities && room.amenities.length > 0 && (
           <div className="mb-2">

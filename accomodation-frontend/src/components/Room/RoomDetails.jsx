@@ -14,7 +14,9 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
 
   if (!show || !room) return null;
 
-  const additionalImages = imageConfig.roomGallery[room.imageKey] || [room.image, room.image, room.image];
+  const additionalImages = room.images && room.images.length > 0 
+    ? room.images.slice(0, 3) 
+    : imageConfig.roomGallery[room.imageKey] || [room.image, room.image, room.image];
 
   const handleNightsChange = (change) => {
     const newNights = Math.max(1, nights + change);
@@ -42,8 +44,10 @@ const RoomDetails = ({ room, show, onClose, onBook, existingBookings = [] }) => 
     const selectedCheckOut = new Date(selectedCheckIn);
     selectedCheckOut.setDate(selectedCheckIn.getDate() + nights);
 
-    // Filter bookings for this specific room
-    const roomBookings = existingBookings.filter(booking => booking.id === room.id);
+    // Filter bookings for this specific room and exclude cancelled bookings
+    const roomBookings = existingBookings.filter(booking => 
+      booking.id === room.id && booking.status !== 'Cancelled'
+    );
 
     for (const booking of roomBookings) {
       const existingCheckIn = new Date(booking.checkInDate || booking.checkIn);

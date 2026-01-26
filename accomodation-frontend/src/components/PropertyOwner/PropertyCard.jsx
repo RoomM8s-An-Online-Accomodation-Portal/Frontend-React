@@ -1,9 +1,10 @@
 import React from "react";
 
-const PropertyCard = ({ 
-  room, 
-  onViewDetails = () => {}, 
-  onDelete = () => {} 
+const PropertyCard = ({
+  room,
+  onViewDetails = () => { },
+  onDelete = () => { },
+  onEdit = () => { }
 }) => {
   /* ================ STYLES ================ */
   const styles = {
@@ -32,11 +33,11 @@ const PropertyCard = ({
   };
 
   /* ================ HANDLERS ================ */
- const handleViewDetails = (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  onViewDetails(room);
-};
+  const handleViewDetails = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onViewDetails(room);
+  };
 
 
   const handleDeleteClick = (e) => {
@@ -46,51 +47,65 @@ const PropertyCard = ({
     }
   };
 
+  const handleEditClick = (e) => {
+    e.stopPropagation();
+    onEdit(room);
+  };
+
   /* ================ UI ================ */
   return (
     <div className="card h-100 border-0" style={styles.card}>
       <div className="position-relative">
-        <img 
-          src={room.image} 
+        <img
+          src={room.image}
           alt={room.title}
           className="card-img-top"
           style={styles.image}
           onClick={handleViewDetails}
         />
-        
-        <button
-          className="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
-          onClick={handleDeleteClick}
-          title="Delete Property"
-        >
-          <i className="fas fa-trash"></i>
-        </button>
+
+        <div className="position-absolute top-0 end-0 m-2 d-flex gap-1">
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handleEditClick}
+            title="Edit Property"
+          >
+            <i className="fas fa-edit"></i>
+          </button>
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={handleDeleteClick}
+            title="Delete Property"
+          >
+            <i className="fas fa-trash"></i>
+          </button>
+        </div>
       </div>
-      
+
       <div className="card-body p-3" style={styles.cardBody} onClick={handleViewDetails}>
         <h6 className="card-title fw-bold mb-2">{room.title}</h6>
-        
+
         <p className="text-muted small mb-2">
           <i className="fas fa-map-marker-alt me-1"></i>
           {room.location}
         </p>
-        
+
         {/* Amenities */}
         {room.amenities && room.amenities.length > 0 && (
           <div className="mb-2">
             <div className="d-flex flex-wrap gap-1">
               {room.amenities.slice(0, 3).map((amenity, index) => (
-                <span 
-                  key={index} 
-                  className="badge bg-light text-dark border" 
+                <span
+                  key={index}
+                  className="badge bg-light text-dark border"
                   style={styles.amenityBadge}
                 >
                   {amenity}
                 </span>
               ))}
               {room.amenities.length > 3 && (
-                <span 
-                  className="badge bg-secondary" 
+                <span
+                  className="badge bg-secondary"
                   style={styles.overflowBadge}
                 >
                   +{room.amenities.length - 3}
@@ -99,15 +114,15 @@ const PropertyCard = ({
             </div>
           </div>
         )}
-        
+
         <div className="d-flex justify-content-between align-items-center">
           <span className="fw-bold text-primary">
             ₹{room.pricePerNight.toLocaleString()}/night
           </span>
-          
+
           <div className="small fw-semibold text-success">
-    Earned ₹{(room.earnAmount || 0).toLocaleString()}
-  </div>
+            Earned ₹{(room.earnAmount || 0).toLocaleString()}
+          </div>
 
           <div className="text-muted small">
             <i className="fas fa-star text-warning me-1"></i>

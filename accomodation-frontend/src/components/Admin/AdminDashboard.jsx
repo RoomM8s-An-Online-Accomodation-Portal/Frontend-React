@@ -4,11 +4,17 @@ import { dataStore } from '../../utils/dataStore';
 import Toast from '../Toast/Toast';
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [showPropertyImages, setShowPropertyImages] = useState(false);
+  const [complaints, setComplaints] = useState([]);
+  const [bookings, setBookings] = useState([
+    { id: 1, customer: 'John Doe', property: 'Cozy Apartment', checkIn: '2024-01-20', checkOut: '2024-01-25', amount: 12500, status: 'Completed' },
+    { id: 2, customer: 'Jane Smith', property: 'Beach Villa', checkIn: '2024-02-01', checkOut: '2024-02-05', amount: 20000, status: 'Active' },
+    { id: 3, customer: 'Mike Wilson', property: 'City Hotel Room', checkIn: '2024-01-28', checkOut: '2024-01-30', amount: 6000, status: 'Cancelled' }
+  ]);
 
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
@@ -66,6 +72,9 @@ const AdminDashboard = () => {
       const action = event.detail;
       showToast(`Admin action: ${action.type}`, 'info');
     };
+    
+    // Load complaints from dataStore
+    setComplaints(dataStore.getAllComplaints());
     
     window.addEventListener('adminAction', handleAdminAction);
     return () => window.removeEventListener('adminAction', handleAdminAction);
@@ -140,6 +149,14 @@ const AdminDashboard = () => {
         <ul className="nav nav-tabs mb-4">
           <li className="nav-item">
             <button 
+              className={`nav-link ${activeTab === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              Dashboard Analytics
+            </button>
+          </li>
+          <li className="nav-item">
+            <button 
               className={`nav-link ${activeTab === 'users' ? 'active' : ''}`}
               onClick={() => setActiveTab('users')}
             >
@@ -154,9 +171,158 @@ const AdminDashboard = () => {
               Property Management
             </button>
           </li>
+          <li className="nav-item">
+            <button 
+              className={`nav-link ${activeTab === 'bookings' ? 'active' : ''}`}
+              onClick={() => setActiveTab('bookings')}
+            >
+              Booking Overview
+            </button>
+          </li>
         </ul>
 
-        {/* User Management Tab */}
+        {/* Dashboard Analytics Tab */}
+        {activeTab === 'dashboard' && (
+          <div className="row g-4 mb-4">
+            <div className="col-md-3">
+              <div className="card border-0 shadow-sm text-center">
+                <div className="card-body">
+                  <i className="fas fa-users text-primary fs-1 mb-3"></i>
+                  <h3 className="fw-bold">{users.length}</h3>
+                  <p className="text-muted mb-0">Total Users</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="card border-0 shadow-sm text-center">
+                <div className="card-body">
+                  <i className="fas fa-home text-success fs-1 mb-3"></i>
+                  <h3 className="fw-bold">{properties.length}</h3>
+                  <p className="text-muted mb-0">Total Properties</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="card border-0 shadow-sm text-center">
+                <div className="card-body">
+                  <i className="fas fa-calendar-check text-warning fs-1 mb-3"></i>
+                  <h3 className="fw-bold">{bookings.length}</h3>
+                  <p className="text-muted mb-0">Total Bookings</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="card border-0 shadow-sm text-center">
+                <div className="card-body">
+                  <i className="fas fa-rupee-sign text-info fs-1 mb-3"></i>
+                  <h3 className="fw-bold">₹{bookings.reduce((sum, booking) => sum + booking.amount, 0).toLocaleString()}</h3>
+                  <p className="text-muted mb-0">Total Revenue</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Booking Overview Tab */}
+        {activeTab === 'bookings' && (
+          <>
+            <div className="card border-0 shadow-sm mb-4">
+              <div className="card-header bg-white">
+                <h3 className="fw-bold mb-0">All Bookings</h3>
+              </div>
+              <div className="card-body p-0">
+                <div className="table-responsive">
+                  <table className="table table-hover mb-0">
+                    <thead className="table-light">
+                      <tr>
+                        <th>Customer</th>
+                        <th>Property</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bookings.map(booking => (
+                        <tr key={booking.id}>
+                          <td className="fw-semibold">{booking.customer}</td>
+                          <td>{booking.property}</td>
+                          <td>{booking.checkIn}</td>
+                          <td>{booking.checkOut}</td>
+                          <td>₹{booking.amount.toLocaleString()}</td>
+                          <td>
+                            <span className={`badge ${
+                              booking.status === 'Completed' ? 'bg-success' : 
+                              booking.status === 'Active' ? 'bg-primary' : 'bg-danger'
+                            }`}>
+                              {booking.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            <div className="card border-0 shadow-sm">
+              <div className="card-header bg-white">
+                <h3 className="fw-bold mb-0">Customer Complaints</h3>
+              </div>
+              <div className="card-body p-0">
+                <div className="table-responsive">
+                  <table className="table table-hover mb-0">
+                    <thead className="table-light">
+                      <tr>
+                        <th>Customer</th>
+                        <th>Property</th>
+                        <th>Issue</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {complaints.map(complaint => (
+                        <tr key={complaint.id}>
+                          <td className="fw-semibold">{complaint.customer}</td>
+                          <td>{complaint.property}</td>
+                          <td>{complaint.issue}</td>
+                          <td>{complaint.date}</td>
+                          <td>
+                            <span className={`badge ${complaint.status === 'Resolved' ? 'bg-success' : 'bg-warning'}`}>
+                              {complaint.status}
+                            </span>
+                          </td>
+                          <td>
+                            {complaint.status === 'Pending' && (
+                              <button 
+                                className="btn btn-sm btn-success"
+                                onClick={() => {
+                                  const updatedComplaint = dataStore.updateComplaintStatus(complaint.id, 'Resolved');
+                                  if (updatedComplaint) {
+                                    setComplaints(dataStore.getAllComplaints());
+                                    showToast('Complaint resolved');
+                                  }
+                                }}
+                              >
+                                Resolve
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+
         {activeTab === 'users' && (
           <div className="card border-0 shadow-sm">
             <div className="card-header bg-white">

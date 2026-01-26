@@ -39,6 +39,21 @@ const Profile = () => {
 
     if (!user) return;
 
+    if (!currentPassword.trim()) {
+      showToast('Current password is required', 'error');
+      return;
+    }
+
+    if (!newPassword.trim()) {
+      showToast('New password is required', 'error');
+      return;
+    }
+
+    if (!confirmPassword.trim()) {
+      showToast('Please confirm your new password', 'error');
+      return;
+    }
+
     if (user.password !== currentPassword) {
       showToast('Current password is incorrect', 'error');
       return;
@@ -87,7 +102,7 @@ const Profile = () => {
                     <i className="fas fa-user-circle" style={{ fontSize: '50px', color: 'white' }}></i>
                   </div>
                 </div>
-                {user.role === 'property_owner' && <h4 className="fw-bold mb-1">{user.name}</h4>}
+                <h4 className="fw-bold mb-1">{user.name}</h4>
                 <p className="text-muted mb-1 small">{user.email}</p>
                 {user.role === 'property_owner' && (
                   <span className="badge bg-light text-dark px-2 py-1">
@@ -103,7 +118,7 @@ const Profile = () => {
                 <div className="row g-3">
                   <div className="col-6">
                     <label className="form-label text-muted">Role</label>
-                    <p className="fw-semibold mb-0">{user.role === 'property_owner' ? 'Property Owner' : 'User'}</p>
+                    <p className="fw-semibold mb-0">{user.role === 'property_owner' ? 'Property Owner' : 'Customer'}</p>
                   </div>
                   <div className="col-6">
                     <label className="form-label text-muted">Gender</label>
@@ -144,13 +159,49 @@ const Profile = () => {
                                   <i className="fas fa-map-marker-alt me-1"></i>
                                   {booking.location}
                                 </p>
+                                <div className="d-flex align-items-center mb-1">
+                                  <div className="text-warning me-2">
+                                    {[...Array(5)].map((_, i) => (
+                                      <i key={i} className={`fas fa-star ${i < Math.floor(booking.rating || 4.2) ? '' : 'text-muted'}`}></i>
+                                    ))}
+                                  </div>
+                                  <small className="text-muted">{(booking.rating || 4.2).toFixed(1)}</small>
+                                </div>
                                 <small className="text-muted">
                                   {booking.checkIn} - {booking.checkOut} • {booking.nights} night(s)
                                 </small>
                               </div>
                               <div className="col-md-3 text-end">
-                                <p className="fw-bold text-primary mb-1">₹{booking.totalPrice?.toLocaleString()}</p>
-                                <span className="badge bg-success">Completed</span>
+                                <p className="fw-bold text-primary mb-2">₹{booking.totalPrice?.toLocaleString()}</p>
+                                <div className="d-flex flex-column align-items-end">
+                                  {booking.status === 'Cancelled' ? (
+                                    <span className="badge bg-danger fs-6 px-3 py-2">
+                                      <i className="fas fa-times-circle me-1"></i>
+                                      Cancelled
+                                    </span>
+                                  ) : (
+                                    <>
+                                      <span className="badge bg-warning text-dark mb-2 fs-6 px-3 py-2">
+                                        <i className="fas fa-clock me-1"></i>
+                                        Upcoming
+                                      </span>
+                                      <button 
+                                        className="btn btn-outline-danger btn-sm d-flex align-items-center"
+                                        onClick={() => {
+                                          if (window.confirm('Are you sure you want to cancel this booking?')) {
+                                            dataStore.cancelBooking(booking.bookingId);
+                                            const updatedBookings = dataStore.getAllBookings().filter(b => b.userId === user.email);
+                                            setUserBookings(updatedBookings);
+                                            showToast('Booking cancelled successfully', 'success');
+                                          }
+                                        }}
+                                      >
+                                        <i className="fas fa-ban me-1"></i>
+                                        Cancel
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -165,6 +216,55 @@ const Profile = () => {
                   </div>
                 )}
               </div>
+
+              {/* Complaint Section - Only for customers */}
+              {user.role !== 'admin' && user.role !== 'property_owner' && (
+                <div className="mb-4">
+                  <h5 className="fw-bold mb-3">Submit Complaint</h5>
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const complaint = {
+                      id: Date.now(),
+                      customer: user.name,
+                      property: formData.get('property'),
+                      issue: formData.get('issue'),
+                      status: 'Pending',
+                      date: new Date().toISOString().split('T')[0]
+                    };
+                    dataStore.addComplaint(complaint);
+                    showToast('Complaint submitted successfully!', 'success');
+                    e.target.reset();
+                  }}>
+                    <div className="mb-3">
+                      <label className="form-label">Property Name</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        name="property"
+                        placeholder="Enter property name"
+                        required
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Issue Description</label>
+                      <textarea 
+                        className="form-control" 
+                        name="issue"
+                        rows="3"
+                        placeholder="Describe your issue"
+                        required
+                      ></textarea>
+                    </div>
+                    <button 
+                      type="submit" 
+                      className="btn btn-warning"
+                    >
+                      Submit Complaint
+                    </button>
+                  </form>
+                </div>
+              )}
 
               {/* Password Section */}
               <div className="mb-4">
@@ -198,7 +298,6 @@ const Profile = () => {
                         className="form-control"
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
-                        required
                       />
                     </div>
                     <div className="mb-3">
@@ -208,7 +307,6 @@ const Profile = () => {
                         className="form-control"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        required
                       />
                     </div>
                     <div className="mb-3">
@@ -218,7 +316,6 @@ const Profile = () => {
                         className="form-control"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
                       />
                     </div>
                     <button
